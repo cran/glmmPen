@@ -10,13 +10,14 @@ devtools::load_all(path = "C:/Users/hheiling/Documents/GitHub/glmmPen")
 
 devtools::document("C:/Users/hheiling/Documents/GitHub/glmmPen")
 
-# devtools::install(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen")
+devtools::install(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen")
+
 
 devtools::check(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen")
 
 # Build package
-devtools::build(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
-                path = "C:/Users/hheiling/Documents/Longleaf")
+# devtools::build(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
+#                 path = "C:/Users/hheiling/Documents/Longleaf")
 devtools::build(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
                 path = "C:/Users/hheiling/Documents/LaTeX/glmmPen JSS paper")
 
