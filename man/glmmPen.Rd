@@ -20,7 +20,8 @@ glmmPen(
   trace = 0,
   tuning_options = selectControl(),
   BICq_posterior = NULL,
-  progress = TRUE
+  progress = TRUE,
+  ...
 )
 }
 \arguments{
@@ -36,7 +37,8 @@ The offset must be specified outside of the formula in the 'offset' argument.}
 omitted, variables will be taken from the environment of \code{formula}.}
 
 \item{family}{a description of the error distribution and link function to be used in the model. 
-Currently, the \code{glmmPen} algorithm allows the Binomial, Gaussian, and Poisson families
+Currently, the \code{glmmPen} algorithm allows the Binomial ("binomial" or binomial()), 
+Gaussian ("gaussian" or gaussian()), and Poisson ("poisson" or poisson()) families
 with canonical links only.}
 
 \item{covar}{character string specifying whether the covariance matrix should be unstructured
@@ -119,6 +121,9 @@ gives some other information regarding the progress of the variable selection
 procedure, including the model selection criteria and log-likelihood estimates
 for each model fit.
 Default is \code{TRUE}.}
+
+\item{...}{additional arguments that could be passed into \code{glmmPen}. See \code{\link{glmmPen_FA}}
+for further details.}
 }
 \value{
 A reference class object of class \code{\link{pglmmObj}} for which many methods are 
@@ -130,7 +135,8 @@ Conditional Minimization (MCECM). The purpose of the function is to perform
 variable selection on both the fixed and random effects simultaneously for the
 generalized linear mixed model. \code{glmmPen} selects the best model using 
 BIC-type selection criteria (see \code{\link{selectControl}} documentation for 
-further details)
+further details). To improve the speed of the algorithm, consider setting
+\code{var_restrictions} = "fixef" within the \code{\link{optimControl}} options.
 }
 \details{
 Argument \code{BICq_posterior} details: If the \code{BIC_option} in \code{\link{selectControl}} 
@@ -139,8 +145,7 @@ to be 'BICq', this requests the calculation of the BIC-ICQ criterion during the 
 process. For the BIC-ICQ criterion to be calculated, a minimal penalty model assuming a small valued 
 lambda penalty needs to be fit, and the posterior samples from this minimal penalty model need to be used. 
 In order to avoid repetitive calculations of
-this minimal penalty model (i.e. if secondary rounds of selection are desired in 
-\code{\link{glmmPen_FineSearch}} or if the user wants to re-run \code{glmmPen} with a different
+this minimal penalty model (i.e. if the user wants to re-run \code{glmmPen} with a different
 set of penalty parameters), a \code{big.matrix} of these 
 posterior samples will be file-backed as two files: a backing file with extension '.bin' and a 
 descriptor file with extension '.desc'. The \code{BICq_posterior} argument should contain a 
