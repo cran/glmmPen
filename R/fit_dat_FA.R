@@ -512,8 +512,10 @@ fit_dat_FA = function(dat, lambda0 = 0, lambda1 = 0,
           out$warnings = "Error in M step: coefficient values diverged"
         }
       }else if(randInt_issue == 1){
-        warning("Error in model fit: Random intercept variance is too small, indicating that this model \n
-                should be fit using traditional generalized linear model techniques.", immediate. = TRUE)
+        warning("Error in model fit: Random intercept variance is too small, indicating either that 
+                there are high correlations among the covariates (if so, consider reducing these correlations 
+                or changing the Elastic Net alpha value) or that this model should be fit 
+                using traditional generalized linear model techniques.", immediate. = TRUE)
         out$warnings = "Error in model fit: random intercept variance becomes too small, model should be fit using regular generalized linear model techniques"
       }
       
@@ -613,7 +615,7 @@ fit_dat_FA = function(dat, lambda0 = 0, lambda1 = 0,
     # E Step
     ############################################################################################
     
-    # Initial points for Metropolis within Gibbs E step algorithms
+    # Initial points for E step sampling algorithms
     uold = as.numeric(u0[nrow(u0),])
     # ranef_idx = which(diag(cov) > 0)
     ranef_idx = 1:r
@@ -712,24 +714,39 @@ fit_dat_FA = function(dat, lambda0 = 0, lambda1 = 0,
     for(k in 1:d){
       cols_idx = seq(from = k, to = ncol(ufull), by = d)
       post_k = ufull[,cols_idx]
-      q2 = q2 + sum(dmvnorm(post_k, log=T)) / nrow(ufull)
+      q2 = q2 + sum(dmvnorm(post_k, log=TRUE)) / nrow(ufull)
     }
     llq = q1 + q2
     BICq = -2*llq + sum(coef != 0)*log(nrow(X))
+    if(is.na(BICq)){
+      warning("BICq value calculated as NA due to divergent coefficient values. 
+              Consider checking correlations in the covariates and/or adjusting
+              model fit parameters.", immediate. = TRUE)
+      cat("Fixed effects (scaled X): \n")
+      cat(round(coef[1:ncol(X)],3), "\n")
+      
+      if(nrow(cov) <= 5){
+        cat("random effect covariance matrix: \n")
+        print(round(cov,3))
+      }else{
+        cat("random effect covariance matrix diagonal: \n")
+        cat(round(diag(cov),3), "\n")
+      }
+    }
   }else{
     BICq = NA
   }
+  message("BICq value outside if statement: ", BICq)
   
   ############################################################################################
   # Final output object
   ############################################################################################
   
-  out = list(coef = coef, sigma = cov, Gamma_mat = gamma,
+  out = list(coef = coef, sigma = cov,
              lambda0 = lambda0, lambda1 = lambda1, 
              J = J, ll = ll, BICh = BICh, BIC = BIC, BICq = BICq, 
              BICNgrp = BICNgrp, EM_iter = i, EM_conv = diff[i],
              converged = EM_converged) 
-             # u_big = Estep_out$u0, post_modes = post_modes
   
   # If gaussian family, take 1000 draws of last u0 for u_init in next round of selection 
   #  (to use for sig_g calculation)

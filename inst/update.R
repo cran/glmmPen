@@ -16,16 +16,25 @@ devtools::install(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen")
 devtools::check(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen")
 
 # Build package
-devtools::build(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
-                path = "C:/Users/hheiling/Documents/GitHub/CRAN")
 # devtools::build(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
 #                 path = "C:/Users/hheiling/Documents/Longleaf")
+devtools::build(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
+                path = "C:/Users/hheiling/Documents/GitHub/CRAN")
 # devtools::build(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
 #                 path = "C:/Users/hheiling/Documents/LaTeX/glmmPen JSS paper")
 
 # Build manual
 devtools::build_manual(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen", 
                        path = "C:/Users/hheiling/Documents/GitHub/glmmPen/inst")
+
+# Update stan model files for E-step sampling
+library(rstantools)
+# use_rstan(pkgdir = "C:/Users/hheiling/Documents/GitHub/glmmPen")
+# Creates or update package-specific system files to compile .stan model files found in inst/stan.
+rstan_config(pkgdir = "C:/Users/hheiling/Documents/GitHub/glmmPen")
+
+# Stan: look-up available functions
+# lookup("distribution")
 
 # Versions:
 ## 1.5.2.6: Added thresholding checks for Poisson family variable selection
@@ -51,12 +60,6 @@ devtools::build_manual(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
 # devtools::document("C:/Users/hheiling/Documents/GitHub/glmmPen")
 # roxygen2::roxygenize("C:/Users/hheiling/Documents/GitHub/glmmPen")
 
-
-
-library(rstantools)
-# use_rstan(pkgdir = "C:/Users/hheiling/Documents/GitHub/glmmPen")
-# Creates or update package-specific system files to compile .stan model files found in inst/stan.
-rstan_config(pkgdir = "C:/Users/hheiling/Documents/GitHub/glmmPen")
 
 
 

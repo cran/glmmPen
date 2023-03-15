@@ -35,7 +35,7 @@ M_step_FA = function(y, X, Z, u_address, M, J, group, family, link_int, coef, of
   K = numeric(J_X)
   for(j in unique(group_X)){
     idx = which(group_X == j)
-    K[j+1] = length(idx)
+    K[j+1] = length(idx) # Add 1 because smallest group_X value is 0
   }
   
   # Number of groups wrt observations

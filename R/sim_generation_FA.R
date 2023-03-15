@@ -7,7 +7,7 @@
 #' @export
 sim.data.FA = function(n, ptot, pnonzero, nstudies, sd_raneff = 0, 
                        family = "binomial", B = NULL, r = 2,
-                       seed, imbalance = 0, beta = NULL, 
+                       corr = NULL, seed, imbalance = 0, beta = NULL, 
                        pnonzerovar = 0, sd_x = 1){
   
   set.seed(seed = seed)
@@ -24,11 +24,25 @@ sim.data.FA = function(n, ptot, pnonzero, nstudies, sd_raneff = 0,
   link_int = family_info$link_int # Recoded link as integer
   family = family_info$family
   
-  slopes = T
+  slopes = TRUE
   
   if(pnonzero + pnonzerovar > ptot) stop("pnonzero + pnonzerovar > ptot")
   # create fixed effects covariate matrix
-  mat = matrix(rnorm(n*p, mean = 0, sd = sd_x), nrow = n)
+  if(is.null(corr)){
+    mat = matrix(rnorm(n*p, mean = 0, sd = sd_x), nrow = n) # 11/15 switching to var = 1, then scaling below
+    #mat = matrix(rbinom(n*p, p = 0.5, size = 1), nrow = n) # now switching back to normal to have more resolution to show prediction performance
+  }else if(is.matrix(corr)){
+    if((nrow(corr) != p) | (ncol(corr) != p)){
+      stop("corr must be either a single numeric value or a matrix of dimension ptot x ptot")
+    }
+    sigma = corr
+    mat = rmvnorm(n =  n , mean = rep(0,p), sigma = sigma)
+  }else{
+    cor = matrix(corr, p, p)
+    diag(cor) = (sd_x)^2
+    sigma = cor # 0.5*cor
+    mat = rmvnorm(n =  n , mean = rep(0,p), sigma = sigma)
+  }
   
   # add intercept
   if(sd_x == 1){

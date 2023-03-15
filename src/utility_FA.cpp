@@ -7,11 +7,15 @@
 #include "utility_glm.h"
 
 using namespace Rcpp;
+using namespace arma;
 
 // Helper functions for FA (factor analysis) implementation used in glmm_FA and glmmPen_FA
 
+
+
 // Calculate Q function estimate (assuming random effects follow a factor analysis method)
-// Q function used in BIC-ICQ calculation, and possibly convergence
+// Q function used in BIC-ICQ calculation, and possibly M-step (Poisson, eventually non-canonical links)
+// For families that are NOT Cox Proportional Hazards
 // [[Rcpp::export]]
 double Qfun_FA(const arma::vec& y, const arma::mat& X, const arma::mat& Z, SEXP pBigMat, 
                 const arma::vec& group, const arma::sp_mat& J_f,
@@ -212,4 +216,75 @@ double sig_gaus_FA(const arma::vec& y, const arma::mat& X, const arma::mat& Z, S
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+// Calculate initial eta, an M x N matrix of linear predictor values
+//    N = number total subjects, M = number of posterior draws taken during the previous E-step
+// arma::mat eta_zeta_calc_FA(arma::mat& X, arma::mat& Z, arma::vec& group, arma::vec& offset,
+//                           arma::vec& beta, arma::vec& beta0, arma::mat& eta0,
+//                           const arma::sp_mat& J, SEXP pBigMat,
+//                           int N, int M, int d, int q, int r, int p,
+//                           int init){
+//   
+//   // init: 1 if initializing eta at start of M-step algorithm,
+//   //    0 if updating random effects portion of eta (linear predictor) throughout M-step
+//   // beta: if init = 1, initialized beta values; if init = 0, most recent beta values in algorithm
+//   // beta0: if init = 0, beta values before most recent beta update
+//   
+//   XPtr<BigMatrix> pMat(pBigMat);
+//   arma::Mat<double> post((double*) pMat->matrix(), pMat->nrow(), pMat->ncol(),false);
+//   
+//   int k=0; // Index for number of groups
+//   int i=0; // Index for number of subjects
+//   int f=0; // Index for columns of Z matrix or matrix of posterior draws
+//   
+//   int n_k=0; // Number of observations in group k
+//   
+//   // Indices for coefficients: fixed effects coefficients, random effects covariance matrix coefficients
+//   arma::uvec fef_cols = as<arma::uvec>(wrap(seq(0,p-1)));
+//   arma::uvec ref_cols = as<arma::uvec>(wrap(seq(p, p + q*r - 1)));
+//   
+//   arma::vec col_idxz(q); // Column indices for Z matrix
+//   arma::vec col_idxu(r); // Column indices for posterior draws matrix u
+//   
+//   int H = q*r;
+//   arma::mat A(M,H);
+//   arma::mat u(M,q);
+//   arma::rowvec Zki(q);
+//   
+//   arma::mat eta(M,N);
+//   
+//   for(k=0;k<d;k++){
+//     
+//     // Rows of X and Z to use
+//     arma::uvec ids = find(group == (k+1));
+//     arma::mat Xk = X.rows(ids);
+//     // Index of appropriate columns of Z and u
+//     for(f=0;f<q;f++){
+//       col_idxz(f) = k + f*d;
+//     }
+//     for(f=0;f<r;f++){
+//       col_idxu(f) = k + f*d;
+//     }
+//     
+//     arma::mat Zk = Z.submat(ids, col_idxz);
+//     n_k = ids.n_elem;
+//     
+//     u = post.cols(col_idxu);
+//     
+//     for(i=0;i<n_k;i++){
+//       Zki = Zk.row(i);
+//       A = kron(u, Zki) * J;
+//       if(init == 1){ // If initializing eta matrix at start of M-step
+//         eta.col(ids(i)) = as_scalar(Xk.row(i) * beta.elem(fef_cols)) + A * beta.elem(ref_cols) + offset(ids(i));
+//       }else if(init == 0){ // If updating random effects portion of eta matrix throughout M-step
+//         // Update random effects component of eta for each individual
+//         eta.col(ids(i)) = eta0.col(ids(i)) + A * (beta.elem(ref_cols) - beta0.elem(ref_cols));
+//       }
+//      
+//     }
+//     
+//   } // End k for loop
+//   
+//   return(eta);
+// }
