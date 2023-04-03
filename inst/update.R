@@ -31,7 +31,7 @@ devtools::build_manual(pkg = "C:/Users/hheiling/Documents/GitHub/glmmPen",
 library(rstantools)
 # use_rstan(pkgdir = "C:/Users/hheiling/Documents/GitHub/glmmPen")
 # Creates or update package-specific system files to compile .stan model files found in inst/stan.
-rstan_config(pkgdir = "C:/Users/hheiling/Documents/GitHub/glmmPen")
+rstantools::rstan_config(pkgdir = "C:/Users/hheiling/Documents/GitHub/glmmPen")
 
 # Stan: look-up available functions
 # lookup("distribution")
