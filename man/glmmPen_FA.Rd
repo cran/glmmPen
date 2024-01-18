@@ -20,7 +20,8 @@ glmmPen_FA(
   trace = 0,
   tuning_options = selectControl(),
   BICq_posterior = NULL,
-  progress = TRUE
+  progress = TRUE,
+  ...
 )
 }
 \arguments{
@@ -28,7 +29,8 @@ glmmPen_FA(
 random effects part of the model, with the response on the left of a ~ operator and the terms, 
 separated by + operators, on the right. Random-effects terms are distinguished by vertical bars 
 ("|") separating expression for design matrices from the grouping factor. \code{formula} should be 
-of the same format needed for \code{\link[lme4]{glmer}} in package \pkg{lme4}. Only one grouping factor 
+of the same format needed for \code{\link[lme4]{glmer}} in package \pkg{lme4}. 
+Only one grouping factor 
 will be recognized. The random effects covariates need to be a subset of the fixed effects covariates.
 The offset must be specified outside of the formula in the 'offset' argument.}
 
@@ -38,7 +40,8 @@ omitted, variables will be taken from the environment of \code{formula}.}
 \item{family}{a description of the error distribution and link function to be used in the model. 
 Currently, the \code{glmmPen} algorithm allows the Binomial ("binomial" or binomial()), 
 Gaussian ("gaussian" or gaussian()), and Poisson ("poisson" or poisson()) families
-with canonical links only.}
+with canonical links only. See \code{\link{phmmPen}} for variable selection within
+proportional hazards mixed models for survival data.}
 
 \item{offset}{This can be used to specify an \emph{a priori} known component to be included in the 
 linear predictor during fitting. Default set to \code{NULL} (no offset). If the data 
@@ -115,6 +118,9 @@ gives some other information regarding the progress of the variable selection
 procedure, including the model selection criteria and log-likelihood estimates
 for each model fit.
 Default is \code{TRUE}.}
+
+\item{...}{additional arguments that could be passed into \code{glmmPen_FA}. 
+See \code{\link{phmmPen_FA}} for further details (e.g. \code{survival_options} argument).}
 }
 \value{
 A reference class object of class \code{\link{pglmmObj}} for which many methods are 
@@ -122,12 +128,15 @@ available (e.g. \code{methods(class = "pglmmObj")}, see ?pglmmObj for additional
 }
 \description{
 \code{glmmPen_FA} is used to fit penalized generalized linear mixed models via 
-Monte Carlo Expectation 
-Conditional Minimization (MCECM). The purpose of the function is to perform 
+Monte Carlo Expectation Conditional Minimization (MCECM) using a factor model decomposition of
+the random effects. The purpose of the function is to perform 
 variable selection on both the fixed and random effects simultaneously for the
 generalized linear mixed model. 
-This function is similar to \code{glmmPen}, except that the assumptions about the 
-random effect covariance matrices differ between the methods.
+This function uses a factor model decomposition on the random effects. This assumption
+reduces the latent space in the E-step (Expectation step) of the algorithm,
+which reduces the computational complexity of the algorithm. This improves
+the speed of the algorithm and enables the scaling of the algorithm to larger dimensions.
+Besides the modeling of the random effects, this function is similar to \code{\link{glmmPen}}.
 \code{glmmPen_FA} selects the best model using 
 BIC-type selection criteria (see \code{\link{selectControl}} documentation for 
 further details). 

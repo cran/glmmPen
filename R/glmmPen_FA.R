@@ -2,14 +2,19 @@
 #' @title Fit a Generalized Mixed Model via Monte Carlo Expectation Conditional Minimization (MCECM)
 #' 
 #' @description \code{glmm_FA} is used to fit a single generalized linear mixed model via Monte Carlo 
-#' Expectation Conditional Minimization (MCECM). No model selection 
-#' is performed.
+#' Expectation Conditional Minimization (MCECM) using a factor model decomposition of
+#' the random effects. No model selection is performed. 
+#' This function uses a factor model decomposition on the random effects. This assumption
+#' reduces the latent space in the E-step (Expectation step) of the algorithm,
+#' which reduces the computational complexity of the algorithm. This improves
+#' the speed of the algorithm and enables the scaling of the algorithm to larger dimensions.
+#' Besides the modeling of the random effects, this function is similar to \code{\link{glmm}}.
 #' 
 #' @inheritParams glmmPen 
 #' @inheritParams glmmPen_FA
 #' @param ... additional arguments that could be passed into \code{glmmPen_FA}. 
-#' See \code{\link{glmmPen_FA}}
-#' for further details.
+#' See \code{\link{glmmPen_FA}} for further details (e.g. arguments related to variable selection
+#' that could be used to fit a single penalized GLMM model).
 #' 
 #' @details The \code{glmm_FA} function can be used to fit a single generalized linear mixed model.
 #' While this approach is meant to be used in the case where the user knows which
@@ -47,21 +52,22 @@ glmm_FA = function(formula, data = NULL, family = "binomial",
   
   # Check that tuning_options has the correct input type
   if(!inherits(tuning_options, "lambdaControl")){
-    stop("glmm requires the use of lambdaControl for the tuning_options. \n",
+    stop("glmm_FA requires the use of lambdaControl for the tuning_options. \n",
          "  In order to use selectControl for model selection, please use glmmPen function")
   }
   
   call = match.call(expand.dots = FALSE)
   
-  # Call glmmPen_FA() (tuning_options = lambdaControl() specifies the fitting of a single model 
+  # Call glmmPen() (tuning_options = lambdaControl() specifies the fitting of a single model 
   #     and not model selection)
   # If ... arguments empty or only includes a few of the args_avail, 
   # glmmPen_FA will use default arguments 
-  output = glmmPen_FA(formula = formula, data = data, family = family,
-                      offset = offset, r_estimation = r_estimation,
-                      optim_options = optim_options,
-                      adapt_RW_options = adapt_RW_options, trace = trace,
-                      tuning_options = tuning_options, progress = progress, ...)
+  output = glmmPen(formula = formula, data = data, family = family,
+                   offset = offset, r_estimation = r_estimation,
+                   optim_options = optim_options,
+                   adapt_RW_options = adapt_RW_options, trace = trace,
+                   tuning_options = tuning_options,
+                   progress = progress, ...)
   
   output$call = call
   out_object = pglmmObj$new(output)
@@ -75,12 +81,15 @@ glmm_FA = function(formula, data = NULL, family = "binomial",
 #' Minimization (MCECM)
 #' 
 #' @description \code{glmmPen_FA} is used to fit penalized generalized linear mixed models via 
-#' Monte Carlo Expectation 
-#' Conditional Minimization (MCECM). The purpose of the function is to perform 
+#' Monte Carlo Expectation Conditional Minimization (MCECM) using a factor model decomposition of
+#' the random effects. The purpose of the function is to perform 
 #' variable selection on both the fixed and random effects simultaneously for the
 #' generalized linear mixed model. 
-#' This function is similar to \code{glmmPen}, except that the assumptions about the 
-#' random effect covariance matrices differ between the methods.
+#' This function uses a factor model decomposition on the random effects. This assumption
+#' reduces the latent space in the E-step (Expectation step) of the algorithm,
+#' which reduces the computational complexity of the algorithm. This improves
+#' the speed of the algorithm and enables the scaling of the algorithm to larger dimensions.
+#' Besides the modeling of the random effects, this function is similar to \code{\link{glmmPen}}.
 #' \code{glmmPen_FA} selects the best model using 
 #' BIC-type selection criteria (see \code{\link{selectControl}} documentation for 
 #' further details). 
@@ -92,6 +101,8 @@ glmm_FA = function(formula, data = NULL, family = "binomial",
 #' @param r_estimation a list of class "rControl" from function \code{\link{rControl}} 
 #' containing the control parameters for the estimation of the number of latent
 #' factors to use in the \code{glmmPen_FA} and \code{glmm_FA} estimation procedures.
+#' @param ... additional arguments that could be passed into \code{glmmPen_FA}. 
+#' See \code{\link{phmmPen_FA}} for further details (e.g. \code{survival_options} argument). 
 #' 
 #' @details Argument \code{BICq_posterior} details: If the \code{BIC_option} in \code{\link{selectControl}} 
 #' (\code{tuning_options}) is specified 
@@ -141,12 +152,10 @@ glmmPen_FA = function(formula, data = NULL, family = "binomial",
                       fixef_noPen = NULL, penalty = c("MCP","SCAD","lasso"),
                       alpha = 1, gamma_penalty = switch(penalty[1], SCAD = 4.0, 3.0),
                       optim_options = optimControl(), adapt_RW_options = adaptControl(),
-                      trace = 0, tuning_options = selectControl(), BICq_posterior = NULL,
-                      progress = TRUE){
+                      trace = 0, tuning_options = selectControl(),
+                      BICq_posterior = NULL,
+                      progress = TRUE, ...){
   
-  ###########################################################################################
-  # FA-specific input argument checks and modifications
-  ###########################################################################################
   
   ###########################################################################################
   # Call glmmPen
@@ -157,7 +166,7 @@ glmmPen_FA = function(formula, data = NULL, family = "binomial",
                    alpha = alpha, gamma_penalty = gamma_penalty,
                    optim_options = optim_options, adapt_RW_options = adapt_RW_options,
                    trace = trace, tuning_options = tuning_options,
-                   BICq_posterior = BICq_posterior, progress = progress)
+                   BICq_posterior = BICq_posterior, progress = progress, ...)
   
   
 }

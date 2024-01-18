@@ -33,6 +33,11 @@ library(rstantools)
 # Creates or update package-specific system files to compile .stan model files found in inst/stan.
 rstantools::rstan_config(pkgdir = "C:/Users/hheiling/Documents/GitHub/glmmPen")
 
+# Can add examples and specify that they do not run or are not checked, see https://stuff.mit.edu/afs/athena/software/r/current/RStudio/resources/roxygen_help.html
+# 
+# \donotrun{}, \donttest{}
+
+
 # Stan: look-up available functions
 # lookup("distribution")
 
